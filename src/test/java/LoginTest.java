@@ -39,14 +39,16 @@ public class LoginTest {
     public void loginSuccessReturnId() {
         steps.create(account);
         ValidatableResponse response = steps.login(account);
-        assertThat("Успешный запрос возвращает \"id\": int", response.extract().body().jsonPath().getInt("id"), notNullValue());
+        assertThat("Успешный запрос возвращает \"id\": int", response.extract().body().jsonPath().
+                getInt("id"), notNullValue());
     }
 
     @Test
     @DisplayName("Если авторизоваться под несуществующим пользователем, запрос возвращает ошибку")
     public void loginIsNotCreatedUserShowError() {
         ValidatableResponse response = steps.login(account);
-        assertEquals("Авторизация под несуществующим пользователем должна вернуть ошибку", response.extract().body().jsonPath().getString("message"), ACCOUNT_ERROR);
+        assertEquals("Авторизация под несуществующим пользователем должна вернуть ошибку",
+                response.extract().body().jsonPath().getString("message"), ACCOUNT_ERROR);
     }
 
 
@@ -54,25 +56,37 @@ public class LoginTest {
     @DisplayName("система вернет ошибку, если неправильно указан логин или пароль")
     public void loginIncorrectAccountShowError() {
         steps.create(account);
-        CourierAccount wrongAccount = new CourierAccount(faker.funnyName().name(), account.getPassword(), account.getFirstName());
+        CourierAccount wrongAccount = new CourierAccount(faker.funnyName().name(), account.getPassword(),
+                account.getFirstName());
         testData.add(wrongAccount);
         ValidatableResponse response = steps.login(wrongAccount);
-        assertEquals("Авторизация с неверным логином или паролем должна вернуть ошибку", response.extract().body().jsonPath().getString("message"), ACCOUNT_ERROR);
+        assertEquals("Авторизация с неверным логином или паролем должна вернуть ошибку",
+                response.extract().body().jsonPath().getString("message"), ACCOUNT_ERROR);
     }
 
     @Test
     @DisplayName("Если одного из полей нет, запрос возвращает ошибку.")
-    @Description("У портала баг. Java-Postman запрос падает с таймаутом если нет логина")
-    @Issue("BUG-001")
     public void createFieldlessReturnsError() {
         steps.create(account);
         CourierAccount wrongAccount = new CourierAccount();
         testData.add(wrongAccount);
         wrongAccount.setPassword(account.getPassword());
-        assertThat("Пароль обязательное поле, ждем 400 код", steps.login(wrongAccount).extract().statusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
+        assertThat("Пароль обязательное поле, ждем 400 код", steps.login(wrongAccount).extract().statusCode(),
+                equalTo(HttpStatus.SC_BAD_REQUEST));
+    }
+
+    @Test
+    @DisplayName("Если одного из полей нет, запрос возвращает ошибку.")
+    @Description("У портала баг. Запрос падает с таймаутом если нет логина")
+    @Issue("BUG-001")
+    public void createFieldlessReturnsError2() {
+        steps.create(account);
+        CourierAccount wrongAccount = new CourierAccount();
+        testData.add(wrongAccount);
         wrongAccount = new CourierAccount();
         wrongAccount.setLogin(account.getLogin());
-        assertThat("Логин обязательное поле, ждем 400 код", steps.login(wrongAccount).extract().statusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
+        assertThat("Логин обязательное поле, ждем 400 код", steps.login(wrongAccount).extract().statusCode(),
+                equalTo(HttpStatus.SC_BAD_REQUEST));
     }
 
     @After

@@ -66,7 +66,8 @@ public class CourierTest {
         ValidatableResponse createFirst = steps.create(account);
         int statusCode = createFirst.extract().statusCode();
         assertThat("Создали первого курьера. Код 201", statusCode, equalTo(HttpStatus.SC_CREATED));
-        CourierAccount courierSecondAccount = new CourierAccount(account.getLogin(), faker.internet().password(), faker.name().firstName());
+        CourierAccount courierSecondAccount = new CourierAccount(account.getLogin(), faker.internet().password(),
+                faker.name().firstName());
         testData.add(courierSecondAccount);
         ValidatableResponse createSecond = steps.create(courierSecondAccount);
         statusCode = createSecond.extract().statusCode();
@@ -75,24 +76,37 @@ public class CourierTest {
 
     @Test
     @DisplayName("если одного из полей нет, запрос возвращает ошибку")
-    @Description("У портала баг. Принимает создание пользователя без firstName")
-    @Issue("BUG-002")
     public void createFieldlessReturnsError() {
         account = new CourierAccount();
         testData.add(account);
         account.setLogin(faker.funnyName().name());
         account.setFirstName(faker.name().firstName());
-        assertThat("Пароль обязательное поле, ждем 400 код", steps.create(account).extract().statusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
+        assertThat("Пароль обязательное поле, ждем 400 код", steps.create(account).extract().statusCode(),
+                equalTo(HttpStatus.SC_BAD_REQUEST));
+    }
+
+    @Test
+    @DisplayName("если одного из полей нет, запрос возвращает ошибку")
+    public void createFieldlessReturnsError2() {
         account = new CourierAccount();
         testData.add(account);
         account.setPassword(faker.internet().password());
         account.setFirstName(faker.name().firstName());
-        assertThat("Логин обязательное поле, ждем 400 код", steps.create(account).extract().statusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
+        assertThat("Логин обязательное поле, ждем 400 код", steps.create(account).extract().statusCode(),
+                equalTo(HttpStatus.SC_BAD_REQUEST));
+    }
+
+    @Test
+    @DisplayName("если одного из полей нет, запрос возвращает ошибку")
+    @Description("У портала баг. Принимает создание пользователя без firstName")
+    @Issue("BUG-002")
+    public void createFieldlessReturnsError3() {
         account = new CourierAccount();
         testData.add(account);
         account.setLogin(faker.funnyName().name());
         account.setPassword(faker.internet().password());
-        assertThat("Имя обязательное поле, ждем 400 код", steps.create(account).extract().statusCode(), equalTo(HttpStatus.SC_BAD_REQUEST));
+        assertThat("Имя обязательное поле, ждем 400 код", steps.create(account).extract().statusCode(),
+                equalTo(HttpStatus.SC_BAD_REQUEST));
     }
 
     @After
